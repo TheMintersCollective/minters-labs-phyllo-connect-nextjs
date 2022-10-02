@@ -1,28 +1,31 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import Script from 'next/script'
 import styles from '../styles/Home.module.css'
 import { useEffect, useState } from "react";
 
-// configure it in your .env.local file
-const config = {
-  clientDisplayName: "MintersLabs",
-  environment: "production",
-  userId: process.env.NEXT_PUBLIC_PHYLLO_SANDBOX_CLIENT_ID,
-  token: process.env.NEXT_PUBLIC_PHYLLO_SANDBOX_SDK_TOKEN,
-  redirect: "popup",
-  workPlatformId: "null",
-};
 
-// configure it in your .env file
+// configure it in your .env.local file
+/*
+* Example config
+* const config = {
+*  clientDisplayName, // the name of your app that you want the creators to see while granting access
+*  environment, // the mode in which you want to use the SDK,  `sandbox` or `production`
+*  userId, // the unique user_id parameter returned by Phyllo API when you create a user (see https://docs.getphyllo.com/docs/api-reference/reference/openapi.v1.yml/paths/~1v1~1users/post)
+*  token,
+*  redirect: false, // (optional) flag to indicate that you want to use the redirect flow, this is `false` by default
+*  workPlatformId, // (optional) the unique work_platform_id of a specific work platform, if you want the creator to skip the platform selection screen and just be able to connect just with a single work platform
+*};
+*/
+
 const configPhyllo = {
-  clientDisplayName: "MintersLabs",
-  environment: "sandbox",
-  userId: "606df955-c81f-450c-8988-9cf3b24a6343",
+  clientDisplayName: "ExampleOrganization",
+  environment: process.env.NEXT_PUBLIC_PHYLLO_SANDBOX_ENV,
+  userId: process.env.NEXT_PUBLIC_PHYLLO_SANDBOX_USER_ID,
   token: process.env.NEXT_PUBLIC_PHYLLO_SANDBOX_SDK_TOKEN,
   redirect: true,
-  redirectURL: "http://localhost:3000"
+  redirectURL: "http://localhost:3000",
+  workPlatformId: null,
 };
 
 
@@ -33,10 +36,11 @@ const Home: NextPage = () => {
   useEffect(() => {
     const PhylloConnect = window.PhylloConnect;
     const phylloConnect = PhylloConnect?.initialize(configPhyllo);
+    console.log(phylloConnect)
 
     phylloConnect?.on(
       "accountConnected",
-      (accountId, workplatformId, userId) => {
+      (accountId: string, workplatformId: string, userId: string) => {
         console.log(
           `onAccountConnected: ${accountId}, ${workplatformId}, ${userId}`
         );
@@ -44,19 +48,19 @@ const Home: NextPage = () => {
     );
     phylloConnect?.on(
       "accountDisconnected",
-      (accountId, workplatformId, userId) => {
+      (accountId: string, workplatformId: string, userId: string) => {
         console.log(
           `onAccountDisconnected: ${accountId}, ${workplatformId}, ${userId}`
         );
       }
     );
-    phylloConnect?.on("tokenExpired", (userId) => {
+    phylloConnect?.on("tokenExpired", (userId: string) => {
       console.log(`onTokenExpired: ${userId}`);
     });
-    phylloConnect?.on("exit", (reason, userId) => {
+    phylloConnect?.on("exit", (reason: string, userId: string) => {
       console.log(`onExit: ${reason}, ${userId}`);
     });
-    phylloConnect?.on("connectionFailure", (reason, workplatformId, userId) => {
+    phylloConnect?.on("connectionFailure", (reason: string, workplatformId: string, userId: string) => {
       console.log(
         `onConnectionFailure: ${reason}, ${workplatformId}, ${userId}`
       );
